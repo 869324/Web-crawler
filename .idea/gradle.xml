@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="delegatedBuild" value="false" />
+        <option name="testRunner" value="GRADLE" />
+        <option name="distributionType" value="WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Problems/A simple calculator" />
+            <option value="$PROJECT_DIR$/Problems/Boxes are not just objects!" />
+            <option value="$PROJECT_DIR$/Problems/Calculate the number of distinct characters" />
+            <option value="$PROJECT_DIR$/Problems/Call me awesome" />
+            <option value="$PROJECT_DIR$/Problems/Catching some exceptions" />
+            <option value="$PROJECT_DIR$/Problems/Check the clock time" />
+            <option value="$PROJECT_DIR$/Problems/Convert to bytes" />
+            <option value="$PROJECT_DIR$/Problems/Converting and multiplying" />
+            <option value="$PROJECT_DIR$/Problems/Count words" />
+            <option value="$PROJECT_DIR$/Problems/Countdown counter" />
+            <option value="$PROJECT_DIR$/Problems/Create a full name" />
+            <option value="$PROJECT_DIR$/Problems/Creating a set" />
+            <option value="$PROJECT_DIR$/Problems/Decompose a math function" />
+            <option value="$PROJECT_DIR$/Problems/Direction" />
+            <option value="$PROJECT_DIR$/Problems/Displaying pairs" />
+            <option value="$PROJECT_DIR$/Problems/Even numbers go first" />
+            <option value="$PROJECT_DIR$/Problems/Extracting big numbers from a text" />
+            <option value="$PROJECT_DIR$/Problems/Extracting words from a text" />
+            <option value="$PROJECT_DIR$/Problems/Find a word with a given length" />
+            <option value="$PROJECT_DIR$/Problems/Find all passwords" />
+            <option value="$PROJECT_DIR$/Problems/From string to a number" />
+            <option value="$PROJECT_DIR$/Problems/Getting current thread info" />
+            <option value="$PROJECT_DIR$/Problems/Getting submaps" />
+            <option value="$PROJECT_DIR$/Problems/Illegal identifiers" />
+            <option value="$PROJECT_DIR$/Problems/In the middle of a word" />
+            <option value="$PROJECT_DIR$/Problems/Message notifier as a thread" />
+            <option value="$PROJECT_DIR$/Problems/Multiset" />
+            <option value="$PROJECT_DIR$/Problems/Multithreaded counter" />
+            <option value="$PROJECT_DIR$/Problems/Number parsing" />
+            <option value="$PROJECT_DIR$/Problems/Ordering the execution of threads" />
+            <option value="$PROJECT_DIR$/Problems/Output elements" />
+            <option value="$PROJECT_DIR$/Problems/Reverse input text" />
+            <option value="$PROJECT_DIR$/Problems/Sherlock Holmes and removing of characters" />
+            <option value="$PROJECT_DIR$/Problems/Spell checker" />
+            <option value="$PROJECT_DIR$/Problems/Squares list" />
+            <option value="$PROJECT_DIR$/Problems/Start or end of a word" />
+            <option value="$PROJECT_DIR$/Problems/Starting threads" />
+            <option value="$PROJECT_DIR$/Problems/String processor" />
+            <option value="$PROJECT_DIR$/Problems/String to double conversion" />
+            <option value="$PROJECT_DIR$/Problems/Sum of numbers in the range" />
+            <option value="$PROJECT_DIR$/Problems/The sign of a number" />
+            <option value="$PROJECT_DIR$/Problems/Thread-safe account" />
+            <option value="$PROJECT_DIR$/Problems/VeganPizza" />
+            <option value="$PROJECT_DIR$/Problems/Vehicle registration number" />
+            <option value="$PROJECT_DIR$/Problems/Vowel or not" />
+            <option value="$PROJECT_DIR$/Problems/Which brackets are balanced" />
+            <option value="$PROJECT_DIR$/Problems/Working with queue" />
+            <option value="$PROJECT_DIR$/Web Crawler/task" />
+            <option value="$PROJECT_DIR$/util" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

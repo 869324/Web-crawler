@@ -1,0 +1,833 @@
+type: edu
+custom_name: stage5
+files:
+- name: src/crawler/ApplicationRunner.java
+  visible: true
+  text: |
+    package crawler;
+
+
+    public class ApplicationRunner {
+        public static void main(String[] args) {
+            new WebCrawler();
+        }
+    }
+  learner_created: false
+- name: src/crawler/WebCrawler.java
+  visible: true
+  text: |-
+    package crawler;
+
+    import javax.swing.*;
+
+    public class WebCrawler extends JFrame {
+        public WebCrawler() {
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setSize(300, 300);
+            setVisible(true);
+        }
+    }
+  learner_created: false
+- name: test/CrawlerTest.java
+  visible: false
+  text: "import crawler.WebCrawler;\nimport org.assertj.swing.fixture.JButtonFixture;\n\
+    import org.assertj.swing.fixture.JLabelFixture;\nimport org.assertj.swing.fixture.JTableFixture;\n\
+    import org.assertj.swing.fixture.JTextComponentFixture;\nimport org.hyperskill.hstest.v6.mocks.web.WebPage;\n\
+    import org.hyperskill.hstest.v6.mocks.web.WebServerMock;\nimport org.hyperskill.hstest.v6.stage.SwingTest;\n\
+    import org.hyperskill.hstest.v6.testcase.CheckResult;\nimport org.hyperskill.hstest.v6.testcase.TestCase;\n\
+    import org.junit.After;\nimport org.junit.AfterClass;\nimport org.junit.BeforeClass;\n\
+    \nimport java.io.BufferedReader;\nimport java.io.File;\nimport java.io.FileReader;\n\
+    import java.io.IOException;\nimport java.nio.file.Paths;\nimport java.util.ArrayList;\n\
+    import java.util.List;\nimport java.util.Map;\nimport java.util.function.Supplier;\n\
+    \npublic class CrawlerTest extends SwingTest<CrawlerTest.Attach> {\n    private\
+    \ static final int port = 25555;\n    private static WebServerMock webServerMock;\n\
+    \    private JTextComponentFixture urlTextField;\n    private JTextComponentFixture\
+    \ exportUrlTextField;\n    private JButtonFixture runButton;\n    private JButtonFixture\
+    \ exportButton;\n    private JLabelFixture titleLabel;\n    private JTableFixture\
+    \ titlesTable;\n    private static PageContent pageContent;\n    private Map<String,\
+    \ String> mapOfTitles;\n    private static List<String> parsedPages;\n    \n \
+    \   private final String EXPORT_DIRECTORY = Paths.get(\"\").toAbsolutePath().toString()\
+    \ + \"/temp.txt\";\n    \n    public CrawlerTest() {\n        super(new WebCrawler());\n\
+    \    }\n    \n    @BeforeClass\n    public static void initWebServer(){\n    \
+    \    System.out.println(\"Initializing server\");\n        pageContent = new PageContent();\n\
+    \        parsedPages = new ArrayList<>();\n        \n        WebPage exampleDotComPage\
+    \ = new WebPage();\n        exampleDotComPage.setContent(pageContent.getContentWithLink(\"\
+    http://localhost:25555/exampleDotCom\"));\n        exampleDotComPage.setContentType(\"\
+    text/html\");\n        \n        WebPage circular1Page = new WebPage();\n    \
+    \    circular1Page.setContent( pageContent.getContentWithLink(\"http://localhost:25555/circular1\"\
+    ));\n        circular1Page.setContentType(\"text/html\");\n        \n        WebPage\
+    \ circular2Page = new WebPage();\n        circular2Page.setContent(pageContent.getContentWithLink(\"\
+    http://localhost:25555/circular2\"));\n        circular2Page.setContentType(\"\
+    text/html\");\n        \n        WebPage circular3Page = new WebPage();\n    \
+    \    circular3Page.setContent(pageContent.getContentWithLink(\"http://localhost:25555/circular3\"\
+    ));\n        circular3Page.setContentType(\"text/html\");\n        \n        WebPage\
+    \ unavailablePage = new WebPage();\n        unavailablePage.setContent(\"Web Page\
+    \ not found\");\n        \n        webServerMock = new WebServerMock(port);\n\
+    \        webServerMock.setPage(\"/exampleDotCom\", exampleDotComPage);\n     \
+    \   webServerMock.setPage(\"/circular1\", circular1Page);\n        webServerMock.setPage(\"\
+    /circular2\", circular2Page);\n        webServerMock.setPage(\"/circular3\", circular3Page);\n\
+    \        webServerMock.setPage(\"/unavailablePage\", unavailablePage);\n     \
+    \   \n        Thread thread = new Thread(() -> {\n            webServerMock.start();\n\
+    \            webServerMock.run();\n        });\n        \n        thread.start();\n\
+    \        \n    }\n    \n    //Deletes the file created after each test\n    @After\n\
+    \    public void deleteFile(){\n        File file = new File(EXPORT_DIRECTORY);\n\
+    \        if (file.exists()){\n            boolean deleted = file.delete();\n \
+    \       }\n    }\n    \n    @Override\n    public List<TestCase<Attach>> generate()\
+    \ {\n        return List.of(\n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"Window title is empty.\",\n             \
+    \           () -> frame.getTitle().length() > 0\n                )),\n       \
+    \         \n                new TestCase<Attach>().setAttach(new Attach(\n   \
+    \                     \"Window is not visible.\",\n                        ()\
+    \ -> frame.isVisible()\n                )),\n                \n              \
+    \  new TestCase<Attach>().setAttach(new Attach(\n                        \"No\
+    \ component found with the name \\\"UrlTextField\\\"\",\n                    \
+    \    () -> checkExistence(() -> {\n                            urlTextField =\
+    \ window.textBox(\"UrlTextField\");\n                            return urlTextField;\n\
+    \                        })\n                )),\n        \n                new\
+    \ TestCase<Attach>().setAttach(new Attach(\n                        \"No component\
+    \ found with the name \\\"RunButton\\\"\",\n                        () -> checkExistence(()\
+    \ -> {\n                            runButton = window.button(\"RunButton\");\n\
+    \                            return runButton;\n                        })\n \
+    \               )),\n                \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"No component found with the name \\\"TitleLabel\\\
+    \"\",\n                        () -> checkExistence(() -> {\n                \
+    \            titleLabel = window.label(\"TitleLabel\");\n                    \
+    \        return titleLabel;\n                        })\n                )),\n\
+    \                \n                new TestCase<Attach>().setAttach(new Attach(\n\
+    \                        \"No component found with the name \\\"TitlesTable\\\"\
+    \",\n                        () -> checkExistence(() -> {\n                  \
+    \          titlesTable = window.table(\"TitlesTable\");\n                    \
+    \        return titlesTable;\n                        })\n                )),\n\
+    \        \n                new TestCase<Attach>().setAttach(new Attach(\n    \
+    \                    \"No component found with the name \\\"ExportUrlTextField\\\
+    \"\",\n                        () -> checkExistence(() -> {\n                \
+    \            exportUrlTextField = window.textBox(\"ExportUrlTextField\");\n  \
+    \                          return exportUrlTextField;\n                      \
+    \  })\n                )),\n        \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"No component found with the name \\\"ExportButton\\\
+    \"\",\n                        () -> checkExistence(() -> {\n                \
+    \            exportButton = window.button(\"ExportButton\");\n               \
+    \             return exportButton;\n                        })\n             \
+    \   )),\n                \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"UrlTextField should be enabled.\",\n    \
+    \                    () -> urlTextField.isEnabled()\n                )),\n   \
+    \     \n                new TestCase<Attach>().setAttach(new Attach(\n       \
+    \                 \"RunButton should be enabled.\",\n                        ()\
+    \ -> runButton.isEnabled()\n                )),\n        \n                new\
+    \ TestCase<Attach>().setAttach(new Attach(\n                        \"TitleLabel\
+    \ should be enabled\",\n                        () -> titleLabel.isEnabled()\n\
+    \                )),\n        \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"ExportUrlTextField should be enabled.\",\n\
+    \                        () -> exportUrlTextField.isEnabled()\n              \
+    \  )),\n        \n                new TestCase<Attach>().setAttach(new Attach(\n\
+    \                        \"ExportButton should be enabled.\",\n              \
+    \          () -> exportButton.isEnabled()\n                )),\n        \n   \
+    \             new TestCase<Attach>().setAttach(new Attach(\n                 \
+    \       \"TitlesTable has wrong number of columns, it should be 2\",\n       \
+    \                 () -> checkExistence(() -> titlesTable.requireColumnCount(2))\n\
+    \                )),\n                \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"TitleLabel shows the wrong title\",\n   \
+    \                     () -> {\n                            mapOfTitles = pageContent.getLinksNTitles();\n\
+    \                            for (Map.Entry m: mapOfTitles.entrySet()) {\n   \
+    \                             String link = (String) m.getKey();\n           \
+    \                     urlTextField.setText(link);\n                          \
+    \      runButton.click();\n                                String title = pageContent.getTitleWithLink(link);\n\
+    \                                if (!titleLabel.text().equals(title)){\n    \
+    \                                return false;\n                             \
+    \   }\n                            }\n                            return true;\n\
+    \                        }\n                )),\n        \n                new\
+    \ TestCase<Attach>().setAttach(new Attach(\n                        \"You shouldn't\
+    \ save a links that you have previously saved\",\n                        () ->\
+    \ {\n                            for (Map.Entry m: mapOfTitles.entrySet()) {\n\
+    \                                String link = (String) m.getKey();\n        \
+    \                        urlTextField.setText(link);\n                       \
+    \         runButton.click();\n                                boolean doubleLinks\
+    \ = checkForDoubleLinks();\n                                if (doubleLinks){\n\
+    \                                    return false;\n                         \
+    \       }\n                            }\n                            return true;\n\
+    \                        }\n                )),\n        \n        \n        \
+    \        new TestCase<Attach>().setAttach(new Attach(\n                      \
+    \  \"TitlesTable has wrong number of rows after parsing\",\n                 \
+    \       () -> {\n                            for (Map.Entry m: mapOfTitles.entrySet())\
+    \ {\n                                String link = (String) m.getKey();\n    \
+    \                            urlTextField.setText(link);\n                   \
+    \             runButton.click();\n                                int numOfSubLinks\
+    \ = pageContent.getSubLinksWithLink(link);\n                                if\
+    \ (numOfSubLinks != titlesTable.rowCount()){\n                               \
+    \     return false;\n                                }\n                     \
+    \       }\n                            return true;\n                        }\n\
+    \                )),\n        \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"TitlesTable shows a link to the page that\
+    \ is unavailable.\" +\n                                \" You shouldn't add to\
+    \ the table unavailable links.\",\n                        () -> {\n         \
+    \                   for (Map.Entry m: mapOfTitles.entrySet()) {\n            \
+    \                    String link = (String) m.getKey();\n                    \
+    \            urlTextField.setText(link);\n                                runButton.click();\n\
+    \                                boolean validContent = checkForUnavailablePage();\n\
+    \                                if (!validContent){\n                       \
+    \             return false;\n                                }\n             \
+    \               }\n                            return true;\n                \
+    \        }\n                )),\n                \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"TitlesTable contains wrong link and title\
+    \ pair after parsing.\",\n                        () -> {\n                  \
+    \          for (Map.Entry m: mapOfTitles.entrySet()) {\n                     \
+    \           String link = (String) m.getKey();\n                             \
+    \   urlTextField.setText(link);\n                                runButton.click();\n\
+    \                                boolean validContent = checkTableContent();\n\
+    \                                if (!validContent){\n                       \
+    \             return false;\n                                }\n             \
+    \               }\n                            return true;\n                \
+    \        }\n                        \n                )),\n                \n\
+    \                new TestCase<Attach>().setAttach(new Attach(\n              \
+    \          \"Your app did not save a file after exporting.\",\n              \
+    \          () -> {\n                            for (Map.Entry m: mapOfTitles.entrySet())\
+    \ {\n                                String link = (String) m.getKey();\n    \
+    \                            urlTextField.setText(link);\n                   \
+    \             runButton.click();\n                                exportUrlTextField.setText(EXPORT_DIRECTORY);\n\
+    \                                exportButton.click();\n                     \
+    \           boolean fileExists = checkFileExistence();\n                     \
+    \           if (!fileExists){\n                                    return false;\n\
+    \                                }\n                                deleteFile();\n\
+    \                            }\n                            return true;\n   \
+    \                     }\n                )),\n                \n             \
+    \   new TestCase<Attach>().setAttach(new Attach(\n                        \"The\
+    \ file your app saves contains wrong number of lines\",\n                    \
+    \    () -> {\n                            for (Map.Entry m: mapOfTitles.entrySet())\
+    \ {\n                                String link = (String) m.getKey();\n    \
+    \                            int originalNumberOfLines = pageContent.getSubLinksWithLink(link);\n\
+    \                                urlTextField.setText(link);\n               \
+    \                 runButton.click();\n                                exportUrlTextField.setText(EXPORT_DIRECTORY);\n\
+    \                                exportButton.click();\n                     \
+    \           boolean correctLines = checkFileNumberOfLines(originalNumberOfLines);\n\
+    \                                if (!correctLines){\n                       \
+    \             return false;\n                                }\n             \
+    \               }\n                            return true;\n                \
+    \        }\n                )),\n        \n                new TestCase<Attach>().setAttach(new\
+    \ Attach(\n                        \"The file your app saves contains wrong title\
+    \ for it's parent url\",\n                        () -> {\n                  \
+    \          for (Map.Entry m: mapOfTitles.entrySet()) {\n                     \
+    \           String link = (String) m.getKey();\n                             \
+    \   urlTextField.setText(link);\n                                runButton.click();\n\
+    \                                exportUrlTextField.setText(EXPORT_DIRECTORY);\n\
+    \                                exportButton.click();\n                     \
+    \           boolean valid = checkEvenLines();\n                              \
+    \  if (!valid){\n                                    return false;\n         \
+    \                       }\n                            }\n                   \
+    \         return true;\n                        }\n                )),\n     \
+    \           \n                new TestCase<Attach>().setAttach(new Attach(\n \
+    \                       \"TitlesTable should be disabled\",\n                \
+    \        () -> !titlesTable.isEnabled()\n                )));\n    }\n    \n \
+    \   //Checks if user saves a link twice\n    private boolean checkForDoubleLinks(){\n\
+    \        parsedPages.clear();\n        \n        String[][] tableContent = titlesTable.contents();\n\
+    \        for (String[] s : tableContent) {\n            String link = s[0];\n\
+    \            if (parsedPages.contains(link)){\n                return true;\n\
+    \            }\n            parsedPages.add(link);\n        }\n        return\
+    \ false;\n    }\n    //Checks if every even line contains the correct title\n\
+    \    private boolean checkEvenLines() {\n        boolean valid = true;\n     \
+    \   int lineNumber = 1;\n        String line;\n        String originalTitle =\
+    \ \"\";\n        try(BufferedReader reader = new BufferedReader(new FileReader(EXPORT_DIRECTORY)))\
+    \ {\n            while ((line = reader.readLine()) != null){\n               \
+    \ //Every odd line contains a link\n                if (lineNumber % 2 != 0){\n\
+    \                    originalTitle = pageContent.getTitleWithLink(line);\n   \
+    \             }else {\n                    //Every even line contains a title\n\
+    \                    if (!line.equals(originalTitle)){\n                     \
+    \   valid = false;\n                    }\n                }\n               \
+    \ lineNumber++;\n            }\n        }catch (IOException e) {\n           \
+    \ e.printStackTrace();\n        }\n        return valid;\n    \n    }\n    \n\
+    \    //Checks the number of lines in the file saved\n    private boolean checkFileNumberOfLines(int\
+    \ originalNumberOfLines) {\n        //Multiplied by 2 because titles are placed\
+    \ after their corresponding link hence the total lines is doubled\n        originalNumberOfLines\
+    \ *= 2;\n        int fileLines = 0;\n        try(BufferedReader reader = new BufferedReader(new\
+    \ FileReader(EXPORT_DIRECTORY))) {\n            while (reader.readLine() != null){\n\
+    \                fileLines++;\n            }\n        }catch (IOException e){\n\
+    \            e.printStackTrace();\n        }\n        return originalNumberOfLines\
+    \ == fileLines;\n    }\n    \n    //Checks if TitlesTable contains unavailable\
+    \ pages\n    private boolean checkForUnavailablePage() {\n        String[][] tableContent\
+    \ = titlesTable.contents();\n        for (String[] s : tableContent){\n      \
+    \      for (int i = 0; i < s.length; i+=2 ){\n                if (!mapOfTitles.containsKey(s[i])){\n\
+    \                    return false;\n                }\n            }\n       \
+    \ }\n        return true;\n    }\n    //Checks for the correct link-title pair\n\
+    \    private boolean checkTableContent(){\n        String[][] tableContent = titlesTable.contents();\n\
+    \        for (String[] s : tableContent) {\n            for (int j = 0; j < tableContent[0].length;\
+    \ j++) {\n                String tableTitle = s[1];\n                String originalTitle\
+    \ = pageContent.getTitleWithLink(s[0]);\n                if (!tableTitle.equals(originalTitle))\
+    \ {\n                    return false;\n                }\n            }\n   \
+    \     }\n        return true;\n    }\n    \n    private boolean checkFileExistence(){\n\
+    \        File file = new File(EXPORT_DIRECTORY);\n        return file.exists();\n\
+    \    }\n    \n    \n    @Override\n    public CheckResult check(String reply,\
+    \ Attach clue) {\n        try {\n            return new CheckResult(clue.function.get(),\
+    \ clue.feedback);\n        }catch (AssertionError error){\n            return\
+    \ CheckResult.FALSE(clue.feedback);\n        }\n        \n    }\n    \n    @AfterClass\n\
+    \    public static void stopServer(){\n        System.out.println(\"Stopping server\"\
+    );\n        webServerMock.stop();\n    }\n    \n    static class Attach {\n  \
+    \      public Supplier<Boolean> function;\n        public String feedback;\n \
+    \       \n        public Attach(String feedback, Supplier<Boolean> function){\n\
+    \            this.feedback = feedback;\n            this.function = function;\n\
+    \        }\n    }\n\n}\n"
+  learner_created: false
+- name: test/common/WebCrawlerCommonTestGenerator.kt
+  visible: false
+  text: |
+    package common
+
+    import org.assertj.swing.fixture.AbstractJComponentFixture
+    import org.hyperskill.hstest.v6.stage.SwingTest
+    import org.hyperskill.hstest.v6.testcase.TestCase
+    import javax.swing.JFrame
+
+    fun frameTests(frameGetter: () -> JFrame): List<TestCase<WebCrawlerClue>> {
+        return listOf(
+            createWebCrawlerTest("Window is not visible") { frameGetter().isVisible.toCheckResult() },
+            createWebCrawlerTest("Window title is empty") { frameGetter().title.isNotEmpty().toCheckResult() }
+        )
+    }
+
+    class ComponentRequirements<ComponentType : AbstractJComponentFixture<*, *, *>>(
+        val name: String,
+        val isEnabled: Boolean,
+        private val componentFinder: (String) -> ComponentType?
+    ) {
+        val suitableComponent: ComponentType? by lazy { componentFinder(name) }
+    }
+
+    fun existenceTests(vararg components: ComponentRequirements<*>): List<TestCase<WebCrawlerClue>> {
+        fun generateExistenceTest(requirements: ComponentRequirements<*>): TestCase<WebCrawlerClue> {
+            return createWebCrawlerTest("No suitable component '${requirements.name}' is found") {
+                SwingTest.checkExistence { requirements.suitableComponent }.toCheckResult()
+            }
+        }
+
+        return components.map(::generateExistenceTest)
+    }
+
+    fun componentsAreEnabledTests(vararg components: ComponentRequirements<*>): List<TestCase<WebCrawlerClue>> {
+        fun generateIsEnabledTest(requirements: ComponentRequirements<*>): TestCase<WebCrawlerClue> {
+            return if (requirements.isEnabled) {
+                createWebCrawlerTest("'${requirements.name}' should be enabled") {
+                    val component = requireNotNull(requirements.suitableComponent) {
+                        "Should check for the component existence before"
+                    }
+
+                    return@createWebCrawlerTest component.isEnabled.toCheckResult()
+                }
+            } else {
+                createWebCrawlerTest("'${requirements.name}' should be disabled") {
+                    val component = requireNotNull(requirements.suitableComponent) {
+                        "Should check for the component existence before"
+                    }
+
+                    return@createWebCrawlerTest (!component.isEnabled).toCheckResult()
+                }
+            }
+        }
+
+        return components.map(::generateIsEnabledTest)
+    }
+  learner_created: false
+- name: test/common/WebCrawlerLocalhostPages.kt
+  visible: false
+  text: |
+    package common
+
+    import org.hyperskill.hstest.v6.mocks.web.WebPage
+    import org.hyperskill.hstest.v6.mocks.web.WebServerMock
+    import org.hyperskill.hstest.v6.testcase.TestCase
+
+    fun <AttachType> TestCase<AttachType>.withLocalhostPagesOn(port: Int): TestCase<AttachType> {
+        val webServerMock = WebServerMock(port).apply {
+            pages.forEach { _, (_, content, relativeUrl) ->
+                setPage(relativeUrl,
+                        WebPage().setContent(content).setContentType("text/html")) }
+        }
+
+        return this.runWith(webServerMock)
+    }
+
+    data class PageProperties(val title: String, val content: String, val relativePath: String, val childUrls: Set<String>)
+
+    val pages = mapOf(
+        localhost(PORT, "/exampleDotCom") to PageProperties(
+            "Example Domain",
+            """<!doctype html>
+    <html>
+    <head>
+        <title>Example Domain</title>
+
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style type="text/css">
+        body {
+            background-color: #f0f0f2;
+            margin: 0;
+            padding: 0;
+            font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+        }
+        div {
+            width: 600px;
+            margin: 5em auto;
+            padding: 50px;
+            background-color: #fff;
+            border-radius: 1em;
+        }
+        a:link, a:visited {
+            color: #38488f;
+            text-decoration: none;
+        }
+        @media (max-width: 700px) {
+            body {
+                background-color: #fff;
+            }
+            div {
+                width: auto;
+                margin: 0 auto;
+                border-radius: 0;
+                padding: 1em;
+            }
+        }
+        </style>
+    </head>
+
+    <body>
+    <div>
+        <h1>Example of Example Domain</h1>
+        <p>This domain is established to be used for illustrative examples in documents. You may use this
+        domain in examples without prior coordination or asking for permission.</p>
+        <p><a href="unavailablePage">More information...</a></p>
+    </div>
+    </body>
+    </html>""",
+            "/exampleDotCom",
+            setOf(localhost(PORT, "/unavailablePage"))
+        ),
+        localhost(PORT, "/circular1") to PageProperties(
+            "circular1tiTle",
+            """
+                |<!doctype html>
+                |<html>
+                |<head>
+                |<title>circular1tiTle</title>
+                |</head>
+                |<body>
+                |<a href="circular2">link1</a>
+                |</body>
+                |</html>
+            """.trimMargin(),
+            "/circular1",
+            setOf(localhost(PORT, "/circular2"))
+        ),
+        localhost(PORT, "/circular2") to PageProperties(
+            "circular2tiTle",
+            """
+                |<!doctype html>
+                |<html>
+                |<head>
+                |<title>circular2tiTle</title>
+                |</head>
+                |<body>
+                |<a href="circular3">link1</a>
+                |</body>
+                |</html>
+            """.trimMargin(),
+            "/circular2",
+            setOf(localhost(PORT, "/circular3"))
+        ),
+        localhost(PORT, "/circular3") to PageProperties(
+            "circular3tiTle",
+            """
+                |<!doctype html>
+                |<html>
+                |<head>
+                |<title>circular3tiTle</title>
+                |</head>
+                |<body>
+                |<a href="circular1">link</a>
+                |<a href="exampleDotCom">link</a>
+                |</body>
+                |</html>
+            """.trimMargin(),
+            "/circular3",
+            setOf(localhost(PORT, "/circular1"), localhost(PORT, "/exampleDotCom"))
+        )
+    )
+  learner_created: false
+- name: test/common/WebCrawlerStage5Test.kt
+  visible: false
+  text: |
+    package common
+
+    import org.assertj.swing.fixture.*
+    import org.hyperskill.hstest.v6.stage.SwingTest
+    import org.hyperskill.hstest.v6.testcase.CheckResult
+    import org.hyperskill.hstest.v6.testcase.TestCase
+
+    import crawler.WebCrawler
+    import org.hyperskill.hstest.v6.common.Utils
+    import java.io.File
+
+    abstract class WebCrawlerStage5Test : SwingTest<WebCrawlerClue>(WebCrawler()) {
+
+        override fun generate(): List<TestCase<WebCrawlerClue>> {
+            val titlesTable = ComponentRequirements("TitlesTable", isEnabled = false) { window.table(it) }
+            val urlText = ComponentRequirements("UrlTextField", isEnabled = true) { window.textBox(it) }
+            val getButton = ComponentRequirements("RunButton", isEnabled = true) { window.button(it) }
+            val titleLabel = ComponentRequirements("TitleLabel", isEnabled = true) { window.label(it) }
+            val saveButton = ComponentRequirements("ExportButton", isEnabled = true) { window.button(it) }
+            val pathToFileText = ComponentRequirements("ExportUrlTextField", isEnabled = true) { window.textBox(it) }
+
+            return frameTests(::frame) +
+                    existenceTests(titlesTable, urlText, getButton, titleLabel, saveButton, pathToFileText) +
+                    componentsAreEnabledTests(titlesTable, urlText, getButton, titleLabel, saveButton, pathToFileText) +
+                    stage3Tests(
+                        titleLabelRequirements = titleLabel,
+                        getTextButtonRequirements = getButton,
+                        locationTextFieldRequirements = urlText
+                    ) +
+                    stage4Tests(
+                        titlesTableRequirements = titlesTable,
+                        getTextButtonRequirements = getButton,
+                        locationTextFieldRequirements = urlText
+                    ) +
+                    stage5Tests(
+                        getTextButtonRequirements = getButton,
+                        locationTextFieldRequirements = urlText,
+                        saveButtonRequirements = saveButton,
+                        savePathTextFieldRequirements = pathToFileText,
+                        depth = 1
+                    )
+        }
+
+        override fun check(reply: String, clue: WebCrawlerClue): CheckResult {
+            return checkWebCrawlerTest(reply = reply, clue = clue)
+        }
+    }
+
+    fun stage3Tests(
+            titleLabelRequirements: ComponentRequirements<JLabelFixture>,
+            getTextButtonRequirements: ComponentRequirements<JButtonFixture>,
+            locationTextFieldRequirements: ComponentRequirements<JTextComponentFixture>
+    ): List<TestCase<WebCrawlerClue>> {
+        return listOf(
+                createWebCrawlerTest("Title your app shows is wrong") {
+                    val locationTextField = locationTextFieldRequirements.requireExistingComponent()
+                    val getTextButton = getTextButtonRequirements.requireExistingComponent()
+                    val titleLabel = titleLabelRequirements.requireExistingComponent()
+
+                    return@createWebCrawlerTest pages
+                            .asSequence()
+                            .map { (url, pageProperties) ->
+                                locationTextField.setText(url)
+
+                                getTextButton.click()
+
+                                Utils.sleep(100)
+
+                                val titleInLabel = titleLabel.text().orEmpty()
+
+                                return@map titleInLabel == pageProperties.title
+                            }
+                            .all { it }
+                            .toCheckResult()
+                }.withLocalhostPagesOn(PORT)
+        )
+    }
+
+
+    fun stage4Tests(
+            titlesTableRequirements: ComponentRequirements<JTableFixture>,
+            getTextButtonRequirements: ComponentRequirements<JButtonFixture>,
+            locationTextFieldRequirements: ComponentRequirements<JTextComponentFixture>
+    ): List<TestCase<WebCrawlerClue>> {
+        return listOf(
+                createWebCrawlerTest {
+                    val locationTextField = locationTextFieldRequirements.requireExistingComponent()
+                    val getTextButton = getTextButtonRequirements.requireExistingComponent()
+                    val titleTable = titlesTableRequirements.requireExistingComponent()
+
+                    for (url in pages.keys) {
+                        locationTextField.setText(url)
+
+                        getTextButton.click()
+
+                        Utils.sleep(100)
+
+                        val contents = titleTable.contents()
+
+                        if (contents.any { it.size != 2 }) {
+                            return@createWebCrawlerTest fail("Table your app shows has a wrong number of columns")
+                        }
+
+                        val actualLinks = url.deepUrls(depth = 1).size
+
+                        if (contents.size != actualLinks) {
+                            return@createWebCrawlerTest fail("Table your app shows has a wrong number of rows. " +
+                                    "Should be $actualLinks instead of ${contents.size}")
+                        }
+
+                        for ((writtenUrl, writtenTitle) in contents) {
+                            if (!pages.containsKey(writtenUrl)) {
+                                return@createWebCrawlerTest fail("Your app shows a link " +
+                                        "to the page that is unavailable. " +
+                                        "You shouldn't add to the table unavailable links.")
+                            }
+                            if (pages.getValue(writtenUrl).title != writtenTitle) {
+                                return@createWebCrawlerTest fail("Table your app shows contains an incorrect row")
+                            }
+                        }
+                    }
+
+                    return@createWebCrawlerTest CheckResult(true)
+                }.withLocalhostPagesOn(PORT)
+        )
+    }
+
+    fun stage5Tests(
+        saveButtonRequirements: ComponentRequirements<JButtonFixture>,
+        getTextButtonRequirements: ComponentRequirements<JButtonFixture>,
+        locationTextFieldRequirements: ComponentRequirements<JTextComponentFixture>,
+        savePathTextFieldRequirements: ComponentRequirements<JTextComponentFixture>,
+        depthTextFieldRequirements: ComponentRequirements<JTextComponentFixture>? = null,
+        depthCheckBoxRequirements: ComponentRequirements<JCheckBoxFixture>? = null,
+        parsedLabelRequirements: ComponentRequirements<JLabelFixture>? = null,
+        depth: Int
+    ): List<TestCase<WebCrawlerClue>> {
+        return listOf(
+            createWebCrawlerTest {
+                val locationTextField = locationTextFieldRequirements.requireExistingComponent()
+                val getTextButton = getTextButtonRequirements.requireExistingComponent()
+                val saveButton = saveButtonRequirements.requireExistingComponent()
+                val savePathTextField = savePathTextFieldRequirements.requireExistingComponent()
+
+                val depthTextField = depthTextFieldRequirements?.requireExistingComponent()
+                val depthCheckBox = depthCheckBoxRequirements?.requireExistingComponent()
+                val parsedLabel = parsedLabelRequirements?.requireExistingComponent()
+
+                for (url in pages.keys) {
+                    depthTextField?.setText("$depth")
+                    depthCheckBox?.enable()
+
+                    locationTextField.setText(url)
+
+                    getTextButton.click()
+
+                    val fileName = File("").absolutePath + "/temp.log"
+
+                    savePathTextField.setText(fileName)
+
+                    saveButton.click()
+
+                    val file = File(fileName)
+
+                    if (!file.exists()) {
+                        return@createWebCrawlerTest fail("Your app doesn't create a file")
+                    }
+
+                    val contents = file.readText().lines().chunked(2).filter { it.size == 2 }
+                    val deepUrls = url.deepUrls(depth)
+
+                    if (contents.size != deepUrls.size) {
+                        return@createWebCrawlerTest fail("File your app saves has a wrong lines number")
+                    }
+
+                    if (contents.map { it.first() }.toSet() != deepUrls) {
+                        return@createWebCrawlerTest fail("File your app saves has a wrong child url")
+                    }
+
+                    for ((writtenUrl, writtenTitle) in contents) {
+                        if (pages.getValue(writtenUrl).title != writtenTitle) {
+                            return@createWebCrawlerTest fail("File your app saves has a wrong pair of lines")
+                        }
+                    }
+                }
+
+                return@createWebCrawlerTest CheckResult(true)
+            }.withLocalhostPagesOn(PORT)
+        )
+    }
+  learner_created: false
+- name: test/common/WebCrawlerUtil.kt
+  visible: false
+  text: |
+    package common
+
+    import org.assertj.swing.fixture.AbstractJComponentFixture
+    import org.assertj.swing.fixture.JCheckBoxFixture
+    import org.hyperskill.hstest.v6.testcase.CheckResult
+    import org.hyperskill.hstest.v6.testcase.TestCase
+
+    const val PORT = 25555  // TODO: maybe use another port?
+
+    class WebCrawlerClue(val feedback: String?, val checker: () -> CheckResult)
+
+    fun createWebCrawlerTest(feedback: String? = null, checker: () -> CheckResult): TestCase<WebCrawlerClue> {
+        return TestCase<WebCrawlerClue>()
+            .setAttach(
+                WebCrawlerClue(
+                    feedback = feedback,
+                    checker = checker
+                )
+            )
+    }
+
+    fun checkWebCrawlerTest(reply: String, clue: WebCrawlerClue): CheckResult {
+        return try {
+            val (result, feedback) = clue.checker()
+
+            CheckResult(result, clue.feedback ?: feedback)
+        } catch (e: AssertionError) {
+            CheckResult(false, clue.feedback)
+        }
+    }
+
+    private operator fun CheckResult.component1() = isCorrect
+    private operator fun CheckResult.component2() = feedback
+
+    fun Boolean.toCheckResult() = CheckResult(this)
+
+    fun fail(message: String) = CheckResult(false, message)
+
+    fun htmlTextsAreEqual(source: String, inTextField: String): Boolean {
+        fun String.formatted(): String {
+            return this.trim().replace("\r\n", "\n").replace("\r", "\n")
+        }
+
+        return source.formatted() == inTextField.formatted()
+    }
+
+    fun <ComponentType : AbstractJComponentFixture<*, *, *>> ComponentRequirements<ComponentType>.requireExistingComponent(): ComponentType {
+        return requireNotNull(this.suitableComponent) {
+            "Must check for the '${this.name}' component existence before this test"
+        }
+    }
+
+    fun localhost(port: Int, url: String) = "http://localhost:$port$url"
+
+    fun String.deepUrls(depth: Int): Set<String> {
+        return deepUrlsOld(depth) + setOf(this)
+    }
+
+    fun String.deepUrlsOld(depth: Int): Set<String> {
+        fun String.childrenOrEmpty(): Set<String> {
+            val pageProperties = pages[this]
+
+            if (depth < 0 || pageProperties == null) {
+                return emptySet()
+            }
+
+            return pageProperties.childUrls.filter { it in pages }.toSet()
+        }
+
+        var remainingDepth = depth - 1
+        val answer = this.childrenOrEmpty().toMutableSet()
+        while (remainingDepth > 0) {
+            val next = answer.flatMap { it.childrenOrEmpty() } - answer
+
+            if (next.isEmpty()) {
+                break
+            }
+
+            answer.addAll(next)
+
+            --remainingDepth
+        }
+
+        return answer
+    }
+
+    fun JCheckBoxFixture.enable() {
+        if (!this.isEnabled) {
+            this.click()
+        }
+    }
+  learner_created: false
+- name: test/PageContent.java
+  visible: false
+  text: "import java.util.HashMap;\nimport java.util.Map;\n\npublic class PageContent\
+    \ {\n    private Map<String, String> linksNContent;\n    private Map<String, String>\
+    \ linksNTitles;\n    private Map<String, Integer> linksNSubLinks;\n    public\
+    \ PageContent(){\n        linksNContent = new HashMap<>();\n        linksNTitles\
+    \ = new HashMap<>();\n        linksNSubLinks = new HashMap<>();\n        initPageContent();\n\
+    \    }\n    \n    private void initPageContent() {\n        //Links\n        String\
+    \ exampleDomainLink = \"http://localhost:25555/exampleDotCom\";\n        String\
+    \ circular1Link = \"http://localhost:25555/circular1\";\n        String circular2Link\
+    \ = \"http://localhost:25555/circular2\";\n        String circular3Link = \"http://localhost:25555/circular3\"\
+    ;\n    \n        //Titles\n        String exampleDomainTitle = \"Example Domain\"\
+    ;\n        String circular1Title = \"circular1tiTle\";\n        String circular2Title\
+    \ = \"circular2tiTle\";\n        String circular3Title = \"circular3tiTle\";\n\
+    \    \n        //Contents\n        String exampleDomainContent = \"<!doctype html>\\\
+    n\" +\n                \"<html>\\n\" +\n                \"<head>\\n\" +\n    \
+    \            \"    <title>Example Domain</title>\\n\" +\n                \"\\\
+    n\" +\n                \"    <meta charset=\\\"utf-8\\\" />\\n\" +\n         \
+    \       \"    <meta http-equiv=\\\"Content-type\\\" content=\\\"text/html; charset=utf-8\\\
+    \" />\\n\" +\n                \"    <meta name=\\\"viewport\\\" content=\\\"width=device-width,\
+    \ initial-scale=1\\\" />\\n\" +\n                \"    <style type=\\\"text/css\\\
+    \">\\n\" +\n                \"    body {\\n\" +\n                \"        background-color:\
+    \ #f0f0f2;\\n\" +\n                \"        margin: 0;\\n\" +\n             \
+    \   \"        padding: 0;\\n\" +\n                \"        font-family: \\\"\
+    Open Sans\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, sans-serif;\\n\" +\n\
+    \                \"\\n\" +\n                \"    }\\n\" +\n                \"\
+    \    div {\\n\" +\n                \"        width: 600px;\\n\" +\n          \
+    \      \"        margin: 5em auto;\\n\" +\n                \"        padding:\
+    \ 50px;\\n\" +\n                \"        background-color: #fff;\\n\" +\n   \
+    \             \"        border-radius: 1em;\\n\" +\n                \"    }\\\
+    n\" +\n                \"    a:link, a:visited {\\n\" +\n                \"  \
+    \      color: #38488f;\\n\" +\n                \"        text-decoration: none;\\\
+    n\" +\n                \"    }\\n\" +\n                \"    @media (max-width:\
+    \ 700px) {\\n\" +\n                \"        body {\\n\" +\n                \"\
+    \            background-color: #fff;\\n\" +\n                \"        }\\n\"\
+    \ +\n                \"        div {\\n\" +\n                \"            width:\
+    \ auto;\\n\" +\n                \"            margin: 0 auto;\\n\" +\n       \
+    \         \"            border-radius: 0;\\n\" +\n                \"         \
+    \   padding: 1em;\\n\" +\n                \"        }\\n\" +\n               \
+    \ \"    }\\n\" +\n                \"    </style>\\n\" +\n                \"</head>\\\
+    n\" +\n                \"\\n\" +\n                \"<body>\\n\" +\n          \
+    \      \"<div>\\n\" +\n                \"    <h1>Example of Example Domain</h1>\\\
+    n\" +\n                \"    <p>This domain is established to be used for illustrative\
+    \ examples in documents. You may use this\\n\" +\n                \"    domain\
+    \ in examples without prior coordination or asking for permission.</p>\\n\" +\n\
+    \                \"    <p><a href=\\\"unavailablePage\\\">More information...</a></p>\\\
+    n\" +\n                \"</div>\\n\" +\n                \"</body>\\n\" +\n   \
+    \             \"</html>\";\n    \n        String circular1Content = \"\\n\" +\n\
+    \                \"            |<!doctype html>\\n\" +\n                \"   \
+    \         |<html>\\n\" +\n                \"            |<head>\\n\" +\n     \
+    \           \"            |<title>circular1tiTle</title>\\n\" +\n            \
+    \    \"            |</head>\\n\" +\n                \"            |<body>\\n\"\
+    \ +\n                \"            |<a href=\\\"circular2\\\">link1</a>\\n\" +\n\
+    \                \"            |</body>\\n\" +\n                \"           \
+    \ |</html>\\n\" +\n                \"        \";\n    \n        String circular2Content\
+    \ = \"\\n\" +\n                \"            |<!doctype html>\\n\" +\n       \
+    \         \"            |<html>\\n\" +\n                \"            |<head>\\\
+    n\" +\n                \"            |<title>circular2tiTle</title>\\n\" +\n \
+    \               \"            |</head>\\n\" +\n                \"            |<body>\\\
+    n\" +\n                \"            |<a href=\\\"circular3\\\">link1</a>\\n\"\
+    \ +\n                \"            |</body>\\n\" +\n                \"       \
+    \     |</html>\\n\" +\n                \"        \";\n    \n        String circular3Content\
+    \ = \"\\n\" +\n                \"            |<!doctype html>\\n\" +\n       \
+    \         \"            |<html>\\n\" +\n                \"            |<head>\\\
+    n\" +\n                \"            |<title>circular3tiTle</title>\\n\" +\n \
+    \               \"            |</head>\\n\" +\n                \"            |<body>\\\
+    n\" +\n                \"            |<a href=\\\"circular1\\\">link</a>\\n\"\
+    \ +\n                \"            |<a href=\\\"exampleDotCom\\\">link</a>\\n\"\
+    \ +\n                \"            |</body>\\n\" +\n                \"       \
+    \     |</html>\\n\" +\n                \"        \";\n    \n        linksNContent.put(exampleDomainLink,\
+    \ exampleDomainContent);\n        linksNContent.put(circular1Link, circular1Content);\n\
+    \        linksNContent.put(circular2Link, circular2Content);\n        linksNContent.put(circular3Link,\
+    \ circular3Content);\n    \n        linksNTitles.put(exampleDomainLink, exampleDomainTitle);\n\
+    \        linksNTitles.put(circular1Link, circular1Title);\n        linksNTitles.put(circular2Link,\
+    \ circular2Title);\n        linksNTitles.put(circular3Link, circular3Title);\n\
+    \        \n        linksNSubLinks.put(exampleDomainLink, 1);\n        linksNSubLinks.put(circular1Link,\
+    \ 2);\n        linksNSubLinks.put(circular2Link, 2);\n        linksNSubLinks.put(circular3Link,\
+    \ 3);\n    }\n    \n    public Map<String, String> getLinksNTitles(){return linksNTitles;}\n\
+    \    public int getSubLinksWithLink(String link){return linksNSubLinks.getOrDefault(link,\
+    \ 0);}\n    public String getContentWithLink(String link){\n        return linksNContent.getOrDefault(link,\
+    \ \"\");\n    }\n    public String getTitleWithLink(String link){\n        return\
+    \ linksNTitles.getOrDefault(link, \"\");\n    }\n}\n"
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/59/stages/321/implement
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/59/stages/321/implement">JetBrains
+    Academy</a>
+  time: Mon, 09 Nov 2020 09:59:36 UTC
+record: 5
